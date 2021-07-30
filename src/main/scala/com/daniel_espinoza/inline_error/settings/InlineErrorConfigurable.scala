@@ -2,10 +2,8 @@ package com.daniel_espinoza.inline_error.settings
 
 import com.intellij.openapi.options.Configurable
 
+import java.awt.Color
 import javax.swing._
-import scala.language.implicitConversions
-
-import SettingUtil.{color2Hex, hex2Color}
 
 class InlineErrorConfigurable extends Configurable {
   private var inlineErrorsComponent: InlineErrorComponent = null
@@ -25,25 +23,28 @@ class InlineErrorConfigurable extends Configurable {
   override def isModified: Boolean = {
     val settings = InlineErrorState.getInstance()
 
-    inlineErrorsComponent.getIsEnabled != settings.isEnabled
-      .|(!color2Hex(inlineErrorsComponent.getBgColor).equals(settings.bgColor))
-      .|(!color2Hex(inlineErrorsComponent.getTextColor).equals(settings.textColor))
+    (inlineErrorsComponent.getIsEnabled != settings.isEnabled)
+      .|(inlineErrorsComponent.getHighlightIsEnabled != settings.highlightIsEnabled)
+      .|(inlineErrorsComponent.getHighlightColor.getRGB != settings.highlightColor)
+      .|(inlineErrorsComponent.getTextColor.getRGB != settings.textColor)
   }
 
   override def apply(): Unit = {
     val settings = InlineErrorState.getInstance()
 
     settings.isEnabled = inlineErrorsComponent.getIsEnabled
-    settings.bgColor = inlineErrorsComponent.getBgColor
-    settings.textColor = inlineErrorsComponent.getTextColor
+    settings.highlightIsEnabled = inlineErrorsComponent.getHighlightIsEnabled
+    settings.highlightColor = inlineErrorsComponent.getHighlightColor.getRGB
+    settings.textColor = inlineErrorsComponent.getTextColor.getRGB
   }
 
   override def reset(): Unit = {
     val settings = InlineErrorState.getInstance()
 
     inlineErrorsComponent.setIsEnabled(settings.isEnabled)
-    inlineErrorsComponent.setTextColor(settings.textColor)
-    inlineErrorsComponent.setBgColor(settings.bgColor)
+    inlineErrorsComponent.setHighlightIsEnabled(settings.highlightIsEnabled)
+    inlineErrorsComponent.setTextColor(new Color(settings.textColor))
+    inlineErrorsComponent.setHighlightColor(new Color(settings.highlightColor))
   }
 
   override def disposeUIResources(): Unit = inlineErrorsComponent = null

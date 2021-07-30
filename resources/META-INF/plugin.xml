@@ -1,12 +1,21 @@
 <idea-plugin>
     <id>com.daniel-espinoza.inline-error</id>
     <name>InlineError</name>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2</version>
     <vendor>Daniel Espinoza</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
-    <description>Plugin for displaying errors message in the editor; inspired by Alexander's VSCode extension Error Lens (https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens)</description>
+    <description><![CDATA[
+        Plugin for displaying errors message in the editor; inspired by Alexander's VSCode extension <a href="https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens">Error Lens</a>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      <ul>
+        <li><b>0.0.2</b> Add ability to change error message text color and option to highlight the line.</li>
+      </ul>
+    ]]>
+    </change-notes>
 
     <idea-version since-build="211.0"/>
 

@@ -14,8 +14,9 @@ import org.jetbrains.annotations.Nullable;
 )
 public class InlineErrorState implements PersistentStateComponent<InlineErrorState> {
     public boolean isEnabled = true;
-    public String bgColor = "ff6565";
-    public String textColor= "ff6565";
+    public boolean highlightIsEnabled = false;
+    public int highlightColor = 4862772;
+    public int textColor= 16737637;
 
     public static InlineErrorState getInstance() {
         return ApplicationManager.getApplication().getService(InlineErrorState.class);

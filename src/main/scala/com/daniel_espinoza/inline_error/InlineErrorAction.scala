@@ -4,7 +4,7 @@ import com.daniel_espinoza.inline_error.settings.InlineErrorState
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.colors.EditorFontType
-import com.intellij.openapi.editor.markup.{EffectType, GutterIconRenderer, HighlighterTargetArea, TextAttributes}
+import com.intellij.openapi.editor.markup.{GutterIconRenderer, HighlighterTargetArea, TextAttributes}
 import com.intellij.openapi.editor.{Editor, EditorCustomElementRenderer, Inlay}
 import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.util.PsiTreeUtil
@@ -14,8 +14,6 @@ import com.intellij.ui.components.JBLabel
 import java.awt.{Color, Graphics, Rectangle}
 import javax.swing.Icon
 import scala.jdk.CollectionConverters._
-
-import com.daniel_espinoza.inline_error.settings.SettingUtil.hex2Color
 
 class InlineErrorAction extends AnAction {
   private class ErrorGutterRenderer(icon: Icon, text: String) extends GutterIconRenderer with DumbAware {
@@ -53,7 +51,8 @@ class InlineErrorAction extends AnAction {
       g.drawString(label.getText, targetRegion.x, targetRegion.y + editor.getAscent)
     }
 
-    override def calcGutterIconRenderer(inlay: Inlay[_ <: EditorCustomElementRenderer]): GutterIconRenderer = new ErrorGutterRenderer(AllIcons.General.Error, label.getText)
+    override def calcGutterIconRenderer(inlay: Inlay[_ <: EditorCustomElementRenderer]): GutterIconRenderer =
+      new ErrorGutterRenderer(AllIcons.General.Error, label.getText)
   }
 
   def getErrors(psiFile: PsiFile): Seq[PsiErrorElement] = {
@@ -72,13 +71,20 @@ class InlineErrorAction extends AnAction {
     val document = file.getViewProvider.getDocument
     val inlayModel = editor.getInlayModel
     val colorScheme = editor.getColorsScheme
-    val textAttribute = new TextAttributes(colorScheme.getDefaultForeground, /*settings.bgColor*/null, null, EffectType.BOXED, EditorFontType.PLAIN.ordinal)
+    val textAttribute = new TextAttributes(
+      colorScheme.getDefaultForeground,
+      if (settings.highlightIsEnabled) new Color(settings.highlightColor) else null,
+      null,
+      null,
+      EditorFontType.PLAIN.ordinal)
 
     editor.getMarkupModel.removeAllHighlighters()
     inlayModel
       .getAfterLineEndElementsInRange(0, document.getLineEndOffset(document.getLineCount - 1), classOf[ErrorLabel])
       .asScala
       .foreach(_.dispose())
+
+    if (!settings.isEnabled) return
 
     val errors = getErrors(file)
     if (errors.isEmpty) {
@@ -97,7 +103,7 @@ class InlineErrorAction extends AnAction {
       highlighter.setGutterIconRenderer(new ErrorGutterRenderer(AllIcons.General.Error, error.getErrorDescription))
 
       val label = new JBLabel(error.getErrorDescription)
-      val errorLabel = new ErrorLabel(label, settings.textColor)
+      val errorLabel = new ErrorLabel(label, new Color(settings.textColor))
 
       inlayModel.addAfterLineEndElement(error.getTextOffset, true, errorLabel)
     }

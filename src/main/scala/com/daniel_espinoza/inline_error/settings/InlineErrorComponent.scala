@@ -1,32 +1,31 @@
 package com.daniel_espinoza.inline_error.settings;
 
 import com.intellij.ui.ColorPanel
-import com.intellij.ui.JBColor
-import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.{JBCheckBox, JBLabel}
 import com.intellij.util.ui.FormBuilder
 
-import javax.swing._
 import java.awt._
+import javax.swing._
 
 class InlineErrorComponent {
-  val DEFAULT_BACKGROUND_COLOR: Color = JBColor.RED
-  val DEFAULT_TEXT_COLOR: Color = JBColor.RED
 
   val inlineIsEnabled: JBCheckBox = new JBCheckBox("Enable inline errors?", true)
-  val errorBackgroundColor: ColorPanel = new ColorPanel()
   val errorTextColor: ColorPanel = new ColorPanel()
+  val highlightIsEnabled: JBCheckBox = new JBCheckBox("Enable highlight line?", false)
+  val highlightColor: ColorPanel = new ColorPanel()
 
-  errorBackgroundColor.setSelectedColor(DEFAULT_BACKGROUND_COLOR);
-  errorTextColor.setSelectedColor(DEFAULT_TEXT_COLOR);
+  highlightColor.setSelectedColor(null);
+  errorTextColor.setSelectedColor(null);
 
-  val errorBackgroundColorLabel = new JBLabel("Background color for error line");
+  val highlightColorLabel = new JBLabel("Highlight color for error line");
   val errorTextColorLabel = new JBLabel("Color of error message");
 
   val rootPanel: JPanel = FormBuilder.createFormBuilder()
     .addComponent(inlineIsEnabled)
     .addLabeledComponent(errorTextColorLabel, errorTextColor)
-    .addLabeledComponent(errorBackgroundColorLabel, errorBackgroundColor)
+    .addComponent(highlightIsEnabled)
+    .addLabeledComponent(highlightColorLabel, highlightColor)
+    .addComponentFillVertically(new JPanel(), 0)
     .getPanel
 
   def getPanel: JPanel = rootPanel
@@ -34,14 +33,14 @@ class InlineErrorComponent {
   def getPreferredFocusedComponent: JComponent = inlineIsEnabled
 
   def getIsEnabled: Boolean = inlineIsEnabled.isSelected
+  def setIsEnabled(isEnabled: Boolean): Unit = inlineIsEnabled.setSelected(isEnabled)
 
-  def setIsEnabled(isEnabled: Boolean): Unit = inlineIsEnabled.setEnabled(isEnabled)
+  def getHighlightIsEnabled: Boolean = highlightIsEnabled.isSelected
+  def setHighlightIsEnabled(isEnabled: Boolean): Unit = highlightIsEnabled.setSelected(isEnabled)
 
-  def getBgColor: Color = errorBackgroundColor.getSelectedColor
-
-  def setBgColor(color: Color): Unit = errorBackgroundColor.setSelectedColor(color)
+  def getHighlightColor: Color = highlightColor.getSelectedColor
+  def setHighlightColor(color: Color): Unit = highlightColor.setSelectedColor(color)
 
   def getTextColor: Color = errorTextColor.getSelectedColor
-
   def setTextColor(color: Color): Unit = errorTextColor.setSelectedColor(color)
 }

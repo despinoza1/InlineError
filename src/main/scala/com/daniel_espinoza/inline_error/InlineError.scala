@@ -4,14 +4,9 @@ import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, AnActionEvent, Presentation}
 import com.intellij.psi.{PsiTreeChangeAdapter, PsiTreeChangeEvent}
 
-import com.daniel_espinoza.inline_error.settings.InlineErrorState
-
 class InlineError extends PsiTreeChangeAdapter {
 
   def triggerHighlightEvent(event: PsiTreeChangeEvent): Unit = {
-    val settings = InlineErrorState.getInstance().getState
-    if (!settings.isEnabled) return
-
     val presentation = new Presentation()
     presentation.putClientProperty("PsiFile", event.getFile)
 

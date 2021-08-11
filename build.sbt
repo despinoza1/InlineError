@@ -4,7 +4,7 @@ lazy val inlineError =
   project.in(file("."))
     .enablePlugins(SbtIdeaPlugin)
     .settings(
-      version := "0.0.2",
+      version := "0.0.3",
       scalaVersion := "2.13.2",
       ThisBuild / intellijPluginName := "InlineError",
       ThisBuild / intellijBuild      := "211.7628.21",
@@ -13,4 +13,7 @@ lazy val inlineError =
       //Compile   / javacOptions       ++= "--release" :: "11" :: Nil,
       unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
       unmanagedResourceDirectories in Test    += baseDirectory.value / "testResources",
+      signPluginOptions := signPluginOptions.value.copy(
+        enabled=true
+      )
     )

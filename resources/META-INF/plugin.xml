@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.daniel-espinoza.inline-error</id>
     <name>InlineError</name>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <vendor>Daniel Espinoza</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -12,6 +12,7 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li><b>0.0.3</b> Fix the following error: <i>java.lang.IndexOutOfBoundsException: Wrong line: -1. Available lines count: 0</i></li>
         <li><b>0.0.2</b> Add ability to change error message text color and option to highlight the line.</li>
       </ul>
     ]]>

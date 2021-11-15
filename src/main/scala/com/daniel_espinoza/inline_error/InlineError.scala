@@ -1,33 +1,76 @@
 package com.daniel_espinoza.inline_error
 
+import com.intellij.analysis.problemsView.toolWindow.HighlightingProblem
+import com.intellij.analysis.problemsView.{Problem, ProblemsListener}
 import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces, AnActionEvent, Presentation}
-import com.intellij.psi.{PsiTreeChangeAdapter, PsiTreeChangeEvent}
+import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, Presentation}
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.Key
+import com.intellij.openapi.vfs.VirtualFile
 
-class InlineError extends PsiTreeChangeAdapter {
+import scala.collection.mutable
 
-  def triggerHighlightEvent(event: PsiTreeChangeEvent): Unit = {
+class InlineError extends ProblemsListener {
+  import InlineError._
+
+  def triggerHighlightEvent(file: VirtualFile): Unit = {
     val presentation = new Presentation()
-    presentation.putClientProperty("PsiFile", event.getFile)
+    val problemList = problems.getOrElse(file, List[HighlightingProblem]())
+    presentation.putClientProperty(InlineErrorKey.key, problemList)
+
+    logger.debug(s"Problems sent to InlineErrorAction:${problemList.foldLeft("")((msg, problem) => {
+      s"$msg\n$problem [${problem.getLine}]: ${problem.getText}"
+    })}")
 
     val actionManager = ActionManager.getInstance()
     actionManager
       .getAction("com.daniel_espinoza.inline_error.InlineErrorAction")
       .actionPerformed(new AnActionEvent(null,
         DataManager.getInstance().getDataContextFromFocusAsync.blockingGet(100),
-        ActionPlaces.UNKNOWN,
+        "InlineError",
         presentation,
         ActionManager.getInstance(),
         0))
   }
 
-  override def childAdded(event: PsiTreeChangeEvent): Unit = triggerHighlightEvent(event)
+  override def problemAppeared(problem: Problem): Unit = {
+    logger.debug(s"ProblemAppeared $problem ${problem.getText}")
+    if (!problem.isInstanceOf[HighlightingProblem]) return
 
-  override def childRemoved(event: PsiTreeChangeEvent): Unit = triggerHighlightEvent(event)
+    val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
+    val file = highlightingProblem.getFile
 
-  override def childReplaced(event: PsiTreeChangeEvent): Unit = triggerHighlightEvent(event)
+    problems(file) = highlightingProblem :: problems.getOrElse(file, List[HighlightingProblem]())
+    triggerHighlightEvent(file)
+  }
 
-  override def childrenChanged(event: PsiTreeChangeEvent): Unit = triggerHighlightEvent(event)
+  override def problemDisappeared(problem: Problem): Unit = {
+    logger.debug(s"ProblemDisappeared $problem ${problem.getText}")
+    if (!problem.isInstanceOf[HighlightingProblem]) return
 
-  override def childMoved(event: PsiTreeChangeEvent): Unit = triggerHighlightEvent(event)
+    val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
+    val file = highlightingProblem.getFile
+
+    problems(file) = problems.getOrElse(file, List[HighlightingProblem]()).filter(!_.equals(highlightingProblem))
+    triggerHighlightEvent(file)
+  }
+
+  override def problemUpdated(problem: Problem): Unit = {
+    logger.debug(s"ProblemUpdated $problem ${problem.getText}")
+    if (!problem.isInstanceOf[HighlightingProblem]) return
+
+    val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
+    val file = highlightingProblem.getFile
+
+    triggerHighlightEvent(file)
+  }
+}
+
+object InlineError {
+  val logger: Logger = Logger.getInstance(classOf[InlineError])
+  val problems: mutable.Map[VirtualFile, List[HighlightingProblem]] = mutable.Map()
+}
+
+object InlineErrorKey {
+  val key: Key[List[HighlightingProblem]] = Key.create("InlineError")
 }

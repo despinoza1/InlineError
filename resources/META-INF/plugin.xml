@@ -12,6 +12,7 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li><b>0.1.1-dev</b> Add UnindexedFilesUpdaterListener to open ProblemsView to start ProblemsListener after indexing is complete</li>
         <li><b>0.1.0-dev</b> Change listener for errors from PsiTreeChangeEvent to ProblemsListener<br>Problems Tab must be opened after indexing for it to work</li>
         <li><b>0.0.3</b> Fix the following error: <i>java.lang.IndexOutOfBoundsException: Wrong line: -1. Available lines count: 0</i></li>
         <li><b>0.0.2</b> Add ability to change error message text color and option to highlight the line.</li>
@@ -33,6 +34,10 @@
                                  instance="com.daniel_espinoza.inline_error.settings.InlineErrorConfigurable"/>
         <applicationService serviceImplementation="com.daniel_espinoza.inline_error.settings.InlineErrorState"/>
     </extensions>
+
+    <applicationListeners>
+        <listener class="com.daniel_espinoza.inline_error.IndexingListener" topic="com.intellij.util.indexing.UnindexedFilesUpdaterListener"/>
+    </applicationListeners>
 
     <projectListeners>
         <listener class="com.daniel_espinoza.inline_error.InlineError" topic="com.intellij.analysis.problemsView.ProblemsListener"/>

@@ -16,7 +16,8 @@ public class InlineErrorState implements PersistentStateComponent<InlineErrorSta
     public boolean isEnabled = true;
     public boolean highlightIsEnabled = false;
     public int highlightColor = 4862772;
-    public int textColor= 16737637;
+    public int textColor = 16737637;
+    public boolean psiEnabled = false;
 
     public static InlineErrorState getInstance() {
         return ApplicationManager.getApplication().getService(InlineErrorState.class);

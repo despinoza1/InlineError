@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.daniel-espinoza.inline-error</id>
     <name>InlineError</name>
-    <version>0.1.0-dev</version>
+    <version>0.1.2-dev</version>
     <vendor>Daniel Espinoza</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -12,6 +12,7 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li><b>0.1.2-dev</b> Add setting to switch between PsiTreeChangeEvent and ProblemsListener</li>
         <li><b>0.1.1-dev</b> Add UnindexedFilesUpdaterListener to open ProblemsView to start ProblemsListener after indexing is complete</li>
         <li><b>0.1.0-dev</b> Change listener for errors from PsiTreeChangeEvent to ProblemsListener<br>Problems Tab must be opened after indexing for it to work</li>
         <li><b>0.0.3</b> Fix the following error: <i>java.lang.IndexOutOfBoundsException: Wrong line: -1. Available lines count: 0</i></li>
@@ -22,12 +23,9 @@
 
     <idea-version since-build="212.0"/>
 
-    <actions>
-        <action class="com.daniel_espinoza.inline_error.InlineErrorAction"
-                id="com.daniel_espinoza.inline_error.InlineErrorAction"/>
-    </actions>
-
     <extensions defaultExtensionNs="com.intellij">
+        <psi.treeChangeListener implementation="com.daniel_espinoza.inline_error.PsiErrorListener"
+                                id="com.daniel_espinoza.inline_error.PsiErrorListener"/>
         <applicationConfigurable parentId="appearance"
                                  id="com.daniel_espinoza.inline_error.settings.InlineErrorConfigurable"
                                  displayName="Inline Error"
@@ -40,7 +38,7 @@
     </applicationListeners>
 
     <projectListeners>
-        <listener class="com.daniel_espinoza.inline_error.InlineError" topic="com.intellij.analysis.problemsView.ProblemsListener"/>
+        <listener class="com.daniel_espinoza.inline_error.ProblemsErrorListener" topic="com.intellij.analysis.problemsView.ProblemsListener"/>
     </projectListeners>
 
 </idea-plugin>

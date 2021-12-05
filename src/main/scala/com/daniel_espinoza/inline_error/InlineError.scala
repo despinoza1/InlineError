@@ -1,76 +1,75 @@
 package com.daniel_espinoza.inline_error
 
-import com.intellij.analysis.problemsView.toolWindow.HighlightingProblem
-import com.intellij.analysis.problemsView.{Problem, ProblemsListener}
-import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, Presentation}
+import com.daniel_espinoza.inline_error.settings.InlineErrorState
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.editor.colors.EditorFontType
+import com.intellij.openapi.editor.markup.{HighlighterTargetArea, TextAttributes}
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
+import com.intellij.ui.components.JBLabel
 
-import scala.collection.mutable
-
-class InlineError extends ProblemsListener {
-  import InlineError._
-
-  def triggerHighlightEvent(file: VirtualFile): Unit = {
-    val presentation = new Presentation()
-    val problemList = problems.getOrElse(file, List[HighlightingProblem]())
-    presentation.putClientProperty(InlineErrorKey.key, problemList)
-
-    logger.debug(s"Problems sent to InlineErrorAction:${problemList.foldLeft("")((msg, problem) => {
-      s"$msg\n$problem [${problem.getLine}]: ${problem.getText}"
-    })}")
-
-    val actionManager = ActionManager.getInstance()
-    actionManager
-      .getAction("com.daniel_espinoza.inline_error.InlineErrorAction")
-      .actionPerformed(new AnActionEvent(null,
-        DataManager.getInstance().getDataContextFromFocusAsync.blockingGet(100),
-        "InlineError",
-        presentation,
-        ActionManager.getInstance(),
-        0))
-  }
-
-  override def problemAppeared(problem: Problem): Unit = {
-    logger.debug(s"ProblemAppeared $problem ${problem.getText}")
-    if (!problem.isInstanceOf[HighlightingProblem]) return
-
-    val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
-    val file = highlightingProblem.getFile
-
-    problems(file) = highlightingProblem :: problems.getOrElse(file, List[HighlightingProblem]())
-    triggerHighlightEvent(file)
-  }
-
-  override def problemDisappeared(problem: Problem): Unit = {
-    logger.debug(s"ProblemDisappeared $problem ${problem.getText}")
-    if (!problem.isInstanceOf[HighlightingProblem]) return
-
-    val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
-    val file = highlightingProblem.getFile
-
-    problems(file) = problems.getOrElse(file, List[HighlightingProblem]()).filter(!_.equals(highlightingProblem))
-    triggerHighlightEvent(file)
-  }
-
-  override def problemUpdated(problem: Problem): Unit = {
-    logger.debug(s"ProblemUpdated $problem ${problem.getText}")
-    if (!problem.isInstanceOf[HighlightingProblem]) return
-
-    val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
-    val file = highlightingProblem.getFile
-
-    triggerHighlightEvent(file)
-  }
-}
+import java.awt.Color
+import scala.jdk.CollectionConverters._
 
 object InlineError {
-  val logger: Logger = Logger.getInstance(classOf[InlineError])
-  val problems: mutable.Map[VirtualFile, List[HighlightingProblem]] = mutable.Map()
-}
 
-object InlineErrorKey {
-  val key: Key[List[HighlightingProblem]] = Key.create("InlineError")
+  case class Error(text: String, line: Int)
+
+  val logger: Logger = Logger.getInstance(InlineError.getClass)
+
+  def highlightError(problems: Seq[Error], project: Project): Unit = {
+    val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
+    if (editor == null) return
+    else if (editor.getEditorKind.name.toLowerCase != "main_editor") return
+
+    val settings = InlineErrorState.getInstance().getState
+    val document = editor.getDocument
+    val inlayModel = editor.getInlayModel
+    val colorScheme = editor.getColorsScheme
+    val textAttribute = new TextAttributes(
+      colorScheme.getDefaultForeground,
+      if (settings.highlightIsEnabled) new Color(settings.highlightColor) else null,
+      null,
+      null,
+      EditorFontType.PLAIN.ordinal)
+
+    logger.debug("Disposing Gutter Icons and ErrorLabels")
+    editor.getMarkupModel.getAllHighlighters.foreach(h => {
+      if (h.getGutterIconRenderer != null && h.getGutterIconRenderer.isInstanceOf[ErrorGutterRenderer])
+        editor.getMarkupModel.removeHighlighter(h)
+
+      if (inlayModel != null && document.getLineCount > 0)
+        inlayModel
+          .getAfterLineEndElementsInRange(0, document.getLineEndOffset(document.getLineCount - 1), classOf[ErrorLabel])
+          .asScala
+          .foreach(_.dispose())
+    })
+
+    if (!settings.isEnabled) return
+    if (problems.isEmpty) {
+      return
+    }
+
+    val filteredErrors = problems
+      .map(err => (err.line, err))
+      .distinctBy(_._1)
+      .filter(_._1 <= (document.getLineCount - 1))
+      .map(_._2)
+
+    for (error <- filteredErrors) {
+      logger.debug(s"Creating ErrorLabel for `[${error.line}]: ${error.text}`")
+
+      val highlighter = editor
+        .getMarkupModel
+        .addRangeHighlighter(document.getLineStartOffset(error.line), document.getLineStartOffset(error.line), 0, textAttribute, HighlighterTargetArea.LINES_IN_RANGE)
+      highlighter.setGutterIconRenderer(new ErrorGutterRenderer(AllIcons.General.Error, error.text))
+
+      if (inlayModel != null) {
+        val label = new JBLabel(error.text)
+        val errorLabel = new ErrorLabel(label, new Color(settings.textColor))
+        inlayModel.addAfterLineEndElement(document.getLineEndOffset(error.line), true, errorLabel)
+      }
+    }
+  }
 }

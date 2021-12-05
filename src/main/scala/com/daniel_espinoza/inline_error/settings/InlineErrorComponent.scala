@@ -10,12 +10,14 @@ import javax.swing._
 class InlineErrorComponent {
 
   val inlineIsEnabled: JBCheckBox = new JBCheckBox("Enable inline errors?", true)
+  val psiEnabled: JBCheckBox = new JBCheckBox("Disable ProblemsListener?", false)
   val errorTextColor: ColorPanel = new ColorPanel()
   val highlightIsEnabled: JBCheckBox = new JBCheckBox("Enable highlight line?", false)
   val highlightColor: ColorPanel = new ColorPanel()
 
   highlightColor.setSelectedColor(null);
   errorTextColor.setSelectedColor(null);
+  psiEnabled.setToolTipText("Same as running v0.0.3")
 
   val highlightColorLabel = new JBLabel("Highlight color for error line");
   val errorTextColorLabel = new JBLabel("Color of error message");
@@ -25,6 +27,7 @@ class InlineErrorComponent {
     .addLabeledComponent(errorTextColorLabel, errorTextColor)
     .addComponent(highlightIsEnabled)
     .addLabeledComponent(highlightColorLabel, highlightColor)
+    .addComponent(psiEnabled)
     .addComponentFillVertically(new JPanel(), 0)
     .getPanel
 
@@ -43,4 +46,7 @@ class InlineErrorComponent {
 
   def getTextColor: Color = errorTextColor.getSelectedColor
   def setTextColor(color: Color): Unit = errorTextColor.setSelectedColor(color)
+
+  def getPsiEnabled: Boolean = psiEnabled.isSelected
+  def setPsiEnabled(isEnabled: Boolean): Unit = psiEnabled.setSelected(isEnabled)
 }

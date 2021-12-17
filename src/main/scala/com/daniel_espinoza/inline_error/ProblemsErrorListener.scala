@@ -16,7 +16,7 @@ class ProblemsErrorListener extends ProblemsListener {
 
   def triggerHighlightEvent(file: VirtualFile, project: Project): Unit = {
     val settings = InlineErrorState.getInstance.getState
-    if (settings.psiEnabled) return
+    if (settings.collector == InlineError.PSIERROR) return
     if (!file.isValid) return
 
     val problemList = problems.getOrDefault(file, List[HighlightingProblem]())

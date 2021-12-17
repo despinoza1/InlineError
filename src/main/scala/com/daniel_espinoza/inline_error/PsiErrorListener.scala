@@ -2,9 +2,9 @@ package com.daniel_espinoza.inline_error
 
 import com.daniel_espinoza.inline_error.settings.InlineErrorState
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiErrorElement, PsiFile, PsiTreeChangeAdapter, PsiTreeChangeEvent}
-import com.intellij.openapi.diagnostic.Logger
 
 import scala.jdk.CollectionConverters._
 
@@ -12,18 +12,9 @@ class PsiErrorListener extends PsiTreeChangeAdapter {
 
   import PsiErrorListener._
 
-  def getErrors(psiFile: PsiFile): Seq[PsiErrorElement] = {
-    if (psiFile != null)
-      return PsiTreeUtil
-        .collectElementsOfType(psiFile, classOf[PsiErrorElement])
-        .asScala
-        .toSeq
-    Nil
-  }
-
   def triggerHighlightEvent(event: PsiTreeChangeEvent): Unit = {
     val settings = InlineErrorState.getInstance.getState
-    if (!settings.psiEnabled) return
+    if (settings.collector == InlineError.PROBLEMS) return
 
     val file = event.getFile
     val document = file.getViewProvider.getDocument
@@ -38,6 +29,15 @@ class PsiErrorListener extends PsiTreeChangeAdapter {
     })
   }
 
+  def getErrors(psiFile: PsiFile): Seq[PsiErrorElement] = {
+    if (psiFile != null)
+      return PsiTreeUtil
+        .collectElementsOfType(psiFile, classOf[PsiErrorElement])
+        .asScala
+        .toSeq
+    Nil
+  }
+  
   override def childAdded(event: PsiTreeChangeEvent): Unit = triggerHighlightEvent(event)
 
   override def childRemoved(event: PsiTreeChangeEvent): Unit = triggerHighlightEvent(event)

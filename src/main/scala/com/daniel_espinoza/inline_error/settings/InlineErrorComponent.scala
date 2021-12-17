@@ -1,5 +1,6 @@
 package com.daniel_espinoza.inline_error.settings
 
+import com.daniel_espinoza.inline_error.InlineError
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.{JBCheckBox, JBLabel, JBPanel}
 import com.intellij.ui.{ColorPanel, ContextHelpLabel}
@@ -14,7 +15,7 @@ class InlineErrorComponent {
   val errorTextColor: ColorPanel = new ColorPanel()
   val highlightIsEnabled: JBCheckBox = new JBCheckBox("Enable highlighting line with error?", false)
   val highlightColor: ColorPanel = new ColorPanel()
-  val listenerSelector: JComboBox[String] = new ComboBox[String](Array("Problems", "PsiError"))
+  val listenerSelector: JComboBox[String] = new ComboBox[String](InlineError.COLLECTORS)
   val listenerHelp: ContextHelpLabel = ContextHelpLabel.create("<html><strong>Problems</strong>: More features but not all languages support; <em>Recommended<em><br><strong>PsiError</strong>: Faster but missing type checkers and linters; same as v0.0.3 of plugin</html>")
 
   highlightColor.setSelectedColor(null)
@@ -54,6 +55,6 @@ class InlineErrorComponent {
   def getTextColor: Color = errorTextColor.getSelectedColor
   def setTextColor(color: Color): Unit = errorTextColor.setSelectedColor(color)
 
-  def getPsiEnabled: Boolean = listenerSelector.getSelectedItem.toString == "PsiError"
-  def setPsiEnabled(isEnabled: Boolean): Unit = listenerSelector.setSelectedItem(if (isEnabled) "PsiError" else "Problems")
+  def getCollector: String = listenerSelector.getSelectedItem.toString
+  def setCollector(collector: String): Unit = listenerSelector.setSelectedItem(collector)
 }

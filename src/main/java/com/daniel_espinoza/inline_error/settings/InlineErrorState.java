@@ -1,5 +1,6 @@
 package com.daniel_espinoza.inline_error.settings;
 
+import com.daniel_espinoza.inline_error.InlineError;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
@@ -17,7 +18,7 @@ public class InlineErrorState implements PersistentStateComponent<InlineErrorSta
     public boolean highlightIsEnabled = false;
     public int highlightColor = 4862772;
     public int textColor = 16737637;
-    public boolean psiEnabled = false;
+    public String collector = InlineError.PROBLEMS();
 
     public static InlineErrorState getInstance() {
         return ApplicationManager.getApplication().getService(InlineErrorState.class);

@@ -15,6 +15,9 @@ import scala.jdk.CollectionConverters._
 object InlineError {
 
   val logger: Logger = Logger.getInstance(InlineError.getClass)
+  val PSIERROR: String = "PsiError"
+  val PROBLEMS: String = "Problems"
+  val COLLECTORS: Array[String] = Array(PROBLEMS, PSIERROR)
 
   def highlightError(problems: Seq[Error], project: Project): Unit = {
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor

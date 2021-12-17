@@ -22,7 +22,7 @@ class PsiErrorListener extends PsiTreeChangeAdapter {
   }
 
   def triggerHighlightEvent(event: PsiTreeChangeEvent): Unit = {
-    val settings = InlineErrorState.getInstance().getState
+    val settings = InlineErrorState.getInstance.getState
     if (!settings.psiEnabled) return
 
     val file = event.getFile

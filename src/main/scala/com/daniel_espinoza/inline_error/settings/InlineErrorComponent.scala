@@ -1,7 +1,8 @@
-package com.daniel_espinoza.inline_error.settings;
+package com.daniel_espinoza.inline_error.settings
 
-import com.intellij.ui.ColorPanel
-import com.intellij.ui.components.{JBCheckBox, JBLabel}
+import com.intellij.openapi.ui.ComboBox
+import com.intellij.ui.components.{JBCheckBox, JBLabel, JBPanel}
+import com.intellij.ui.{ColorPanel, ContextHelpLabel}
 import com.intellij.util.ui.FormBuilder
 
 import java.awt._
@@ -10,24 +11,30 @@ import javax.swing._
 class InlineErrorComponent {
 
   val inlineIsEnabled: JBCheckBox = new JBCheckBox("Enable inline errors?", true)
-  val psiEnabled: JBCheckBox = new JBCheckBox("Disable ProblemsListener?", false)
   val errorTextColor: ColorPanel = new ColorPanel()
-  val highlightIsEnabled: JBCheckBox = new JBCheckBox("Enable highlight line?", false)
+  val highlightIsEnabled: JBCheckBox = new JBCheckBox("Enable highlighting line with error?", false)
   val highlightColor: ColorPanel = new ColorPanel()
+  val listenerSelector: JComboBox[String] = new ComboBox[String](Array("Problems", "PsiError"))
+  val listenerHelp: ContextHelpLabel = ContextHelpLabel.create("<html><strong>Problems</strong>: More features but not all languages support; <em>Recommended<em><br><strong>PsiError</strong>: Faster but missing type checkers and linters; same as v0.0.3 of plugin</html>")
 
-  highlightColor.setSelectedColor(null);
-  errorTextColor.setSelectedColor(null);
-  psiEnabled.setToolTipText("Same as running v0.0.3")
+  highlightColor.setSelectedColor(null)
+  errorTextColor.setSelectedColor(null)
 
-  val highlightColorLabel = new JBLabel("Highlight color for error line");
-  val errorTextColorLabel = new JBLabel("Color of error message");
+  val highlightColorLabel = new JBLabel("Highlight color for line with error:")
+  val errorTextColorLabel = new JBLabel("Text color of error message:")
+  val listenerSelectorLabel = new JBLabel("Error Collector:")
+
+  val selectorPanel = new JBPanel
+  selectorPanel.add(listenerSelectorLabel)
+  selectorPanel.add(listenerSelector)
+  selectorPanel.add(listenerHelp)
 
   val rootPanel: JPanel = FormBuilder.createFormBuilder()
     .addComponent(inlineIsEnabled)
     .addLabeledComponent(errorTextColorLabel, errorTextColor)
     .addComponent(highlightIsEnabled)
     .addLabeledComponent(highlightColorLabel, highlightColor)
-    .addComponent(psiEnabled)
+    .addLabeledComponent(selectorPanel, new JPanel())
     .addComponentFillVertically(new JPanel(), 0)
     .getPanel
 
@@ -47,6 +54,6 @@ class InlineErrorComponent {
   def getTextColor: Color = errorTextColor.getSelectedColor
   def setTextColor(color: Color): Unit = errorTextColor.setSelectedColor(color)
 
-  def getPsiEnabled: Boolean = psiEnabled.isSelected
-  def setPsiEnabled(isEnabled: Boolean): Unit = psiEnabled.setSelected(isEnabled)
+  def getPsiEnabled: Boolean = listenerSelector.getSelectedItem.toString == "PsiError"
+  def setPsiEnabled(isEnabled: Boolean): Unit = listenerSelector.setSelectedItem(if (isEnabled) "PsiError" else "Problems")
 }

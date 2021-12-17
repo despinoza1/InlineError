@@ -14,8 +14,6 @@ import scala.jdk.CollectionConverters._
 
 object InlineError {
 
-  case class Error(text: String, line: Int)
-
   val logger: Logger = Logger.getInstance(InlineError.getClass)
 
   def highlightError(problems: Seq[Error], project: Project): Unit = {
@@ -23,7 +21,7 @@ object InlineError {
     if (editor == null) return
     else if (editor.getEditorKind.name.toLowerCase != "main_editor") return
 
-    val settings = InlineErrorState.getInstance().getState
+    val settings = InlineErrorState.getInstance.getState
     val document = editor.getDocument
     val inlayModel = editor.getInlayModel
     val colorScheme = editor.getColorsScheme
@@ -55,6 +53,7 @@ object InlineError {
       .map(err => (err.line, err))
       .distinctBy(_._1)
       .filter(_._1 <= (document.getLineCount - 1))
+      .filter(_._1 >= 0)
       .map(_._2)
 
     for (error <- filteredErrors) {
@@ -72,4 +71,6 @@ object InlineError {
       }
     }
   }
+
+  case class Error(text: String, line: Int)
 }

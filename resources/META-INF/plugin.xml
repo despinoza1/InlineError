@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.daniel-espinoza.inline-error</id>
     <name>InlineError</name>
-    <version>0.1.2-dev</version>
+    <version>0.1.3-dev</version>
     <vendor>Daniel Espinoza</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -12,6 +12,7 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li><b>0.1.3-dev</b> Cleanup settings menu</li>
         <li><b>0.1.2-dev</b> Add setting to switch between PsiTreeChangeEvent and ProblemsListener</li>
         <li><b>0.1.1-dev</b> Add UnindexedFilesUpdaterListener to open ProblemsView to start ProblemsListener after indexing is complete</li>
         <li><b>0.1.0-dev</b> Change listener for errors from PsiTreeChangeEvent to ProblemsListener<br>Problems Tab must be opened after indexing for it to work</li>

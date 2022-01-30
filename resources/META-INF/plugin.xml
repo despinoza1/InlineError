@@ -12,6 +12,7 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li><b>0.1.1</b> Bump IDE version to 213</li>
         <li><b>0.1.0</b> Release dev changes for ProblemsListener</li>
         <li><b>0.1.3-dev</b> Cleanup settings menu</li>
         <li><b>0.1.2-dev</b> Add setting to switch between PsiTreeChangeEvent and ProblemsListener</li>
@@ -23,7 +24,7 @@
     ]]>
     </change-notes>
 
-    <idea-version since-build="212.0"/>
+    <idea-version since-build="213.0"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.treeChangeListener implementation="com.daniel_espinoza.inline_error.PsiErrorListener"

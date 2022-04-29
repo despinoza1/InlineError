@@ -3,6 +3,7 @@ package com.daniel_espinoza.inline_error
 import com.daniel_espinoza.inline_error.settings.InlineErrorState
 import com.intellij.analysis.problemsView.toolWindow.HighlightingProblem
 import com.intellij.analysis.problemsView.{Problem, ProblemsListener}
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
@@ -14,26 +15,9 @@ class ProblemsErrorListener extends ProblemsListener {
 
   import ProblemsErrorListener._
 
-  def triggerHighlightEvent(file: VirtualFile, project: Project): Unit = {
-    val settings = InlineErrorState.getInstance.getState
-    if (settings.collector == InlineError.PSIERROR) return
-    if (!file.isValid) return
-
-    val problemList = problems.getOrDefault(file, List[HighlightingProblem]())
-
-    ApplicationManager.getApplication.invokeLater(() => {
-      val errors = problemList.map(e => {
-        InlineError.Error(e.getText, e.getLine)
-      })
-      logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
-
-      InlineError.highlightError(errors, project)
-    })
-  }
-
   override def problemAppeared(problem: Problem): Unit = {
+    if (!isEnabled || !problem.isInstanceOf[HighlightingProblem]) return
     logger.debug(s"ProblemAppeared $problem")
-    if (!problem.isInstanceOf[HighlightingProblem]) return
 
     val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
     val file = highlightingProblem.getFile
@@ -43,8 +27,8 @@ class ProblemsErrorListener extends ProblemsListener {
   }
 
   override def problemDisappeared(problem: Problem): Unit = {
+    if (!isEnabled || !problem.isInstanceOf[HighlightingProblem]) return
     logger.debug(s"ProblemDisappeared $problem")
-    if (!problem.isInstanceOf[HighlightingProblem]) return
 
     val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
     val file = highlightingProblem.getFile
@@ -54,13 +38,32 @@ class ProblemsErrorListener extends ProblemsListener {
   }
 
   override def problemUpdated(problem: Problem): Unit = {
+    if (!isEnabled || !problem.isInstanceOf[HighlightingProblem]) return
     logger.debug(s"ProblemUpdated $problem")
-    if (!problem.isInstanceOf[HighlightingProblem]) return
 
     val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
     val file = highlightingProblem.getFile
 
     triggerHighlightEvent(file, problem.getProvider.getProject)
+  }
+
+  def isEnabled: Boolean = {
+    val settings = InlineErrorState.getInstance.getState
+    settings.collector == InlineError.PROBLEMS
+  }
+
+  def triggerHighlightEvent(file: VirtualFile, project: Project): Unit = {
+    if (!file.isValid) return
+    val problemList = problems.getOrDefault(file, List[HighlightingProblem]())
+
+    ApplicationManager.getApplication.invokeLater(() => {
+      val errors = problemList.map(e => {
+        InlineError.Error(e.getText, e.getLine, HighlightSeverity.ERROR)
+      })
+      logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
+
+      InlineError.highlightError(errors, project)
+    })
   }
 }
 

@@ -23,30 +23,42 @@ class InlineErrorConfigurable extends Configurable {
   override def isModified: Boolean = {
     val settings = InlineErrorState.getInstance()
 
-    (inlineErrorsComponent.getIsEnabled != settings.isEnabled)
-      .|(inlineErrorsComponent.getHighlightIsEnabled != settings.highlightIsEnabled)
-      .|(inlineErrorsComponent.getHighlightColor.getRGB != settings.highlightColor)
-      .|(inlineErrorsComponent.getTextColor.getRGB != settings.textColor)
+    (inlineErrorsComponent.getSeverity != settings.severity)
+      .|(inlineErrorsComponent.getHighlightSeverity != settings.highlightSeverity)
+      .|(inlineErrorsComponent.getHighlightErrorColor.getRGB != settings.highlightErrorColor)
+      .|(inlineErrorsComponent.getErrorTextColor.getRGB != settings.errorTextColor)
+      .|(inlineErrorsComponent.getHighlightWarnColor.getRGB != settings.highlightWarnColor)
+      .|(inlineErrorsComponent.getWarnTextColor.getRGB != settings.warnTextColor)
+      .|(inlineErrorsComponent.getHighlightInfoColor.getRGB != settings.highlightInfoColor)
+      .|(inlineErrorsComponent.getInfoTextColor.getRGB != settings.infoTextColor)
       .|(inlineErrorsComponent.getCollector != settings.collector)
   }
 
   override def apply(): Unit = {
     val settings = InlineErrorState.getInstance()
 
-    settings.isEnabled = inlineErrorsComponent.getIsEnabled
-    settings.highlightIsEnabled = inlineErrorsComponent.getHighlightIsEnabled
-    settings.highlightColor = inlineErrorsComponent.getHighlightColor.getRGB
-    settings.textColor = inlineErrorsComponent.getTextColor.getRGB
+    settings.severity = inlineErrorsComponent.getSeverity
+    settings.highlightSeverity = inlineErrorsComponent.getHighlightSeverity
+    settings.highlightErrorColor = inlineErrorsComponent.getHighlightErrorColor.getRGB
+    settings.errorTextColor = inlineErrorsComponent.getErrorTextColor.getRGB
+    settings.warnTextColor = inlineErrorsComponent.getWarnTextColor.getRGB
+    settings.highlightWarnColor = inlineErrorsComponent.getHighlightWarnColor.getRGB
+    settings.infoTextColor = inlineErrorsComponent.getInfoTextColor.getRGB
+    settings.highlightInfoColor = inlineErrorsComponent.getHighlightInfoColor.getRGB
     settings.collector = inlineErrorsComponent.getCollector
   }
 
   override def reset(): Unit = {
     val settings = InlineErrorState.getInstance()
 
-    inlineErrorsComponent.setIsEnabled(settings.isEnabled)
-    inlineErrorsComponent.setHighlightIsEnabled(settings.highlightIsEnabled)
-    inlineErrorsComponent.setTextColor(new Color(settings.textColor))
-    inlineErrorsComponent.setHighlightColor(new Color(settings.highlightColor))
+    inlineErrorsComponent.setSeverity(settings.severity)
+    inlineErrorsComponent.setHighlightSeverity(settings.highlightSeverity)
+    inlineErrorsComponent.setErrorTextColor(new Color(settings.errorTextColor))
+    inlineErrorsComponent.setHighlightErrorColor(new Color(settings.highlightErrorColor))
+    inlineErrorsComponent.setWarnTextColor(new Color(settings.warnTextColor))
+    inlineErrorsComponent.setHighlightWarnColor(new Color(settings.highlightWarnColor))
+    inlineErrorsComponent.setInfoTextColor(new Color(settings.infoTextColor))
+    inlineErrorsComponent.setHighlightInfoColor(new Color(settings.highlightInfoColor))
     inlineErrorsComponent.setCollector(settings.collector)
   }
 

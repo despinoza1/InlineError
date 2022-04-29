@@ -7,9 +7,10 @@ import com.intellij.openapi.editor.{EditorCustomElementRenderer, Inlay}
 import com.intellij.ui.components.JBLabel
 
 import java.awt.{Color, Graphics, Rectangle}
+import javax.swing.Icon
 
 
-class ErrorLabel(label: JBLabel, textColor: Color) extends EditorCustomElementRenderer {
+class ErrorLabel(label: JBLabel, textColor: Color, icon: Icon) extends EditorCustomElementRenderer {
   override def calcWidthInPixels(inlay: Inlay[_ <: EditorCustomElementRenderer]): Int = label.getPreferredSize.width
 
   override def calcHeightInPixels(inlay: Inlay[_ <: EditorCustomElementRenderer]): Int = label.getPreferredSize.height
@@ -26,6 +27,6 @@ class ErrorLabel(label: JBLabel, textColor: Color) extends EditorCustomElementRe
   }
 
   override def calcGutterIconRenderer(inlay: Inlay[_ <: EditorCustomElementRenderer]): GutterIconRenderer = {
-    new ErrorGutterRenderer(AllIcons.General.Error, label.getText)
+    new ErrorGutterRenderer(icon, label.getText)
   }
 }

@@ -1,4 +1,4 @@
-package com.daniel_espinoza.inline_error
+package com.daniel_espinoza.inline_error.listeners
 
 import com.intellij.analysis.problemsView.toolWindow.ProblemsView
 import com.intellij.openapi.application.ApplicationManager

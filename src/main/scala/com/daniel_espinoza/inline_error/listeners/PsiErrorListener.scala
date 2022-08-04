@@ -1,5 +1,6 @@
-package com.daniel_espinoza.inline_error
+package com.daniel_espinoza.inline_error.listeners
 
+import com.daniel_espinoza.inline_error.InlineError
 import com.daniel_espinoza.inline_error.settings.InlineErrorState
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
@@ -35,7 +36,8 @@ class PsiErrorListener extends PsiTreeChangeAdapter {
       })
       logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
 
-      InlineError.highlightError(errors, file.getProject)
+//      InlineError.highlightError(errors, file.getProject)
+      InlineError.makeHighlightersInline(file.getProject)
     })
   }
 

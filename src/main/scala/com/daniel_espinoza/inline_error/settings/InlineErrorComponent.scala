@@ -30,7 +30,7 @@ class InlineErrorComponent {
       |<strong>Problems</strong>: More features but not all languages support; <em>Recommended</em>
       |<br><strong>PsiError</strong>: Faster but missing type checkers and linters
       |<br><strong>HighlightInfo</strong>: Allows to collect INFO, WARNING along with ERROR messages; <em>In Development</em>
-      |</html>"""
+      |</html>""".stripMargin
 
   highlightError.setSelectedColor(null)
   highlightWarning.setSelectedColor(null)

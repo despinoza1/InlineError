@@ -1,10 +1,15 @@
-package com.daniel_espinoza.inline_error
+package com.daniel_espinoza.inline_error.listeners
 
 import com.daniel_espinoza.inline_error.settings.InlineErrorState
+import com.daniel_espinoza.inline_error.{ErrorLabel, InlineError}
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoFilter}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.colors.EditorFontType
+import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.psi.PsiFile
+import com.intellij.ui.components.JBLabel
 
 import java.util.concurrent
 
@@ -40,7 +45,8 @@ class HighlightErrorFilter extends HighlightInfoFilter {
       if (errors.nonEmpty)
         logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
 
-      InlineError.highlightError(errors, file.getProject)
+      InlineError.highlightErrorSeq(errors, file.getProject)
+      InlineError.makeHighlightersInline(file.getProject)
     })
   }
 

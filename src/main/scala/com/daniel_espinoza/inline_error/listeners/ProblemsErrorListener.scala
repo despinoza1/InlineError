@@ -1,5 +1,6 @@
-package com.daniel_espinoza.inline_error
+package com.daniel_espinoza.inline_error.listeners
 
+import com.daniel_espinoza.inline_error.InlineError
 import com.daniel_espinoza.inline_error.settings.InlineErrorState
 import com.intellij.analysis.problemsView.toolWindow.HighlightingProblem
 import com.intellij.analysis.problemsView.{Problem, ProblemsListener}
@@ -62,7 +63,8 @@ class ProblemsErrorListener extends ProblemsListener {
       })
       logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
 
-      InlineError.highlightError(errors, project)
+//      InlineError.highlightErrorSeq(errors, project)
+      InlineError.makeHighlightersInline(project)
     })
   }
 }

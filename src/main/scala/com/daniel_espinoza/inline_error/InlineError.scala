@@ -89,7 +89,7 @@ object InlineError {
     clearHighlighters(editor.get)
 
     val settings = InlineErrorState.getInstance.getState
-    if (settings.severity == "None") return
+    if (settings == null || settings.severity == "None") return
     val document = editor.get.getDocument
 
     val highlighters = DocumentMarkupModel.forDocument(document, project, false).getAllHighlighters
@@ -98,7 +98,7 @@ object InlineError {
       .filter(_.getErrorStripeTooltip.isInstanceOf[HighlightInfo])
       .map(_.getErrorStripeTooltip.asInstanceOf[HighlightInfo])
       .map(h => Error(h.getDescription, document.getLineNumber(h.getEndOffset), h.getSeverity))
-      .filter(e => filterSeverity(e.severity) && e.text.nonEmpty && e.line <= (document.getLineCount - 1) && e.line >= 0)
+      .filter(e => filterSeverity(e.severity) && e.text != null && e.text.nonEmpty && e.line <= (document.getLineCount - 1) && e.line >= 0)
       .map(err => (err.line, err))
       .sortWith(_._2.severity.myVal > _._2.severity.myVal)
       .distinctBy(_._1)
@@ -112,7 +112,7 @@ object InlineError {
     clearHighlighters(editor.get)
 
     val settings = InlineErrorState.getInstance.getState
-    if (settings.severity == "None") return
+    if (settings == null || settings.severity == "None") return
     val document = editor.get.getDocument
 
     problems

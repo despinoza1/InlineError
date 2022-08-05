@@ -18,13 +18,13 @@ class HighlightErrorFilter extends HighlightInfoFilter {
   ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
     @tailrec
     override def run(): Unit = {
-      Thread.sleep(300)
-
-      if (isEnabled)
+      if (isEnabled) {
         ApplicationManager.getApplication.invokeLater(() =>
           ProjectManager.getInstance().getOpenProjects.foreach(InlineError.makeHighlightersInline)
         )
+      }
 
+      Thread.sleep(3000)
       run()
     }
   })
@@ -58,7 +58,9 @@ class HighlightErrorFilter extends HighlightInfoFilter {
 
   def isEnabled: Boolean = {
     val settings = InlineErrorState.getInstance.getState
-    settings.collector == InlineError.HIGHLIGHT
+
+    if (settings == null) false
+    else settings.collector == InlineError.HIGHLIGHT
   }
 }
 

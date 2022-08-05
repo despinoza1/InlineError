@@ -28,6 +28,8 @@ public class InlineErrorState implements PersistentStateComponent<InlineErrorSta
     public String severity = "WARN";
 
     public static InlineErrorState getInstance() {
+        if (ApplicationManager.getApplication().isDisposed()) return null;
+
         return ApplicationManager.getApplication().getService(InlineErrorState.class);
     }
 

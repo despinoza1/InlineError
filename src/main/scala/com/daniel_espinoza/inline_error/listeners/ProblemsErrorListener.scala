@@ -50,7 +50,9 @@ class ProblemsErrorListener extends ProblemsListener {
 
   def isEnabled: Boolean = {
     val settings = InlineErrorState.getInstance.getState
-    settings.collector == InlineError.PROBLEMS
+
+    if (settings == null) false
+    else settings.collector == InlineError.PROBLEMS
   }
 
   def triggerHighlightEvent(file: VirtualFile, project: Project): Unit = {

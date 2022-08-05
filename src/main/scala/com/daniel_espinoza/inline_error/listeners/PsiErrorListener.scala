@@ -43,7 +43,9 @@ class PsiErrorListener extends PsiTreeChangeAdapter {
 
   def isEnabled: Boolean = {
     val settings = InlineErrorState.getInstance.getState
-    settings.collector == InlineError.PSIERROR
+
+    if (settings == null) false
+    else settings.collector == InlineError.PSIERROR
   }
 
   def getErrors(psiFile: PsiFile): Seq[PsiErrorElement] = {

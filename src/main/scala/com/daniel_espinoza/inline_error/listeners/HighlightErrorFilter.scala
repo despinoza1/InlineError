@@ -1,32 +1,39 @@
 package com.daniel_espinoza.inline_error.listeners
 
+import com.daniel_espinoza.inline_error.InlineError
 import com.daniel_espinoza.inline_error.settings.InlineErrorState
-import com.daniel_espinoza.inline_error.{ErrorLabel, InlineError}
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoFilter}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.colors.EditorFontType
-import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi.PsiFile
-import com.intellij.ui.components.JBLabel
 
 import java.util.concurrent
+import scala.annotation.tailrec
 
 class HighlightErrorFilter extends HighlightInfoFilter {
 
   import HighlightErrorFilter._
 
+  ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
+    @tailrec
+    override def run(): Unit = {
+      Thread.sleep(300)
+
+      if (isEnabled)
+        ApplicationManager.getApplication.invokeLater(() =>
+          ProjectManager.getInstance().getOpenProjects.foreach(InlineError.makeHighlightersInline)
+        )
+
+      run()
+    }
+  })
+
   def accept(highlightInfo: HighlightInfo, file: PsiFile): Boolean = {
     if (!isEnabled || file == null || !file.isValid) return true
 
-    if (file.getViewProvider.getDocument == null) return true
-
-    if (highlightInfo.getDescription != null && InlineError.filterSeverity(highlightInfo.getSeverity))
-      problems.put(file, highlightInfo :: problems.getOrDefault(file, List[HighlightInfo]()).filter(_.getHighlighter != null))
-
     ApplicationManager.getApplication.invokeLater(() => {
-      triggerHighlight(file)
+      InlineError.makeHighlightersInline(file.getProject)
     })
 
     true
@@ -46,7 +53,6 @@ class HighlightErrorFilter extends HighlightInfoFilter {
         logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
 
       InlineError.highlightErrorSeq(errors, file.getProject)
-      InlineError.makeHighlightersInline(file.getProject)
     })
   }
 

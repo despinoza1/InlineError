@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.daniel-espinoza.inline-error</id>
     <name>InlineError</name>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <vendor>Daniel Espinoza</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -12,6 +12,7 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li><b>0.3.0</b> Use RangeHighlighters from DocumentMarkupModel to create inline error messages for HighlightInfoFilter.</li>
         <li><b>0.2.0</b> Add initial support for HighlightInfoFilter, new collector that can get Warning and Information messages; <i>In Development</i>.</li>
         <li><b>0.1.1</b> Bump IDE version to 213</li>
         <li><b>0.1.0</b> Release dev changes for ProblemsListener</li>

@@ -28,6 +28,7 @@ class PsiErrorListener extends PsiTreeChangeAdapter {
     if (!isEnabled) return
 
     val file = event.getFile
+    if (file == null) return
     val document = file.getViewProvider.getDocument
 
     ApplicationManager.getApplication.invokeLater(() => {
@@ -36,8 +37,7 @@ class PsiErrorListener extends PsiTreeChangeAdapter {
       })
       logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
 
-//      InlineError.highlightError(errors, file.getProject)
-      InlineError.makeHighlightersInline(file.getProject)
+      InlineError.highlightErrorSeq(errors, file.getProject)
     })
   }
 

@@ -5,10 +5,10 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.icons.AllIcons
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
-import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, TextAttributes}
+import com.intellij.openapi.editor.markup.{HighlighterTargetArea, TextAttributes}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBLabel
@@ -27,6 +27,7 @@ object InlineError {
 
   def stringToHighlightSeverity(severity: String): HighlightSeverity = severity match {
     case "INFO" => HighlightSeverity.INFORMATION
+    case "WEAK_WARN" => HighlightSeverity.WEAK_WARNING
     case "WARN" => HighlightSeverity.WARNING
     case "ERROR" => HighlightSeverity.ERROR
     case _ => new HighlightSeverity("NONE", Int.MaxValue)
@@ -72,7 +73,7 @@ object InlineError {
 
     val highlighter = editor
       .getMarkupModel
-      .addRangeHighlighter(document.getLineStartOffset(error.line), document.getLineStartOffset(error.line), 0, textAttribute, HighlighterTargetArea.LINES_IN_RANGE)
+      .addRangeHighlighter(document.getLineStartOffset(error.line), document.getLineEndOffset(error.line), 0, textAttribute, HighlighterTargetArea.LINES_IN_RANGE)
     highlighter.setGutterIconRenderer(new ErrorGutterRenderer(error.getIcon, error.text))
 
     if (inlayModel != null) {
@@ -97,12 +98,10 @@ object InlineError {
       .filter(_.getErrorStripeTooltip.isInstanceOf[HighlightInfo])
       .map(_.getErrorStripeTooltip.asInstanceOf[HighlightInfo])
       .map(h => Error(h.getDescription, document.getLineNumber(h.getEndOffset), h.getSeverity))
-      .filter(e => filterSeverity(e.severity))
+      .filter(e => filterSeverity(e.severity) && e.text.nonEmpty && e.line <= (document.getLineCount - 1) && e.line >= 0)
       .map(err => (err.line, err))
       .sortWith(_._2.severity.myVal > _._2.severity.myVal)
       .distinctBy(_._1)
-      .filter(_._1 <= (document.getLineCount - 1))
-      .filter(_._1 >= 0)
       .map(_._2)
       .foreach(createErrorLabel(editor.get, settings))
   }
@@ -129,12 +128,14 @@ object InlineError {
     def getIcon: Icon = severity match {
       case HighlightSeverity.ERROR => AllIcons.General.Error
       case HighlightSeverity.WARNING => AllIcons.General.Warning
+      case HighlightSeverity.WEAK_WARNING => AllIcons.General.Warning
       case _ => AllIcons.General.Information
     }
 
     def getTextColor(settings: InlineErrorState): Color = severity match {
       case HighlightSeverity.ERROR => new Color(settings.errorTextColor)
       case HighlightSeverity.WARNING => new Color(settings.warnTextColor)
+      case HighlightSeverity.WEAK_WARNING => new Color(settings.warnTextColor)
       case _ => new Color(settings.infoTextColor)
     }
 
@@ -142,6 +143,7 @@ object InlineError {
       val color = severity match {
         case HighlightSeverity.ERROR => new Color(settings.highlightErrorColor)
         case HighlightSeverity.WARNING => new Color(settings.highlightWarnColor)
+        case HighlightSeverity.WEAK_WARNING => new Color(settings.highlightWarnColor)
         case HighlightSeverity.INFORMATION => new Color(settings.highlightInfoColor)
         case _ => null
       }

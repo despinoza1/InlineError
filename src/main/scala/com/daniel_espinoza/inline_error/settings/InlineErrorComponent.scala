@@ -11,7 +11,7 @@ import javax.swing._
 
 class InlineErrorComponent {
 
-  val SEVERITIES: Array[String] = Array("None", "ERROR", "WARN", "INFO")
+  val SEVERITIES: Array[String] = Array("None", "ERROR", "WARN", "WEAK_WARN", "INFO")
 
   val inlineSeverity: JComboBox[String] = new ComboBox[String](SEVERITIES)
   val errorTextColor: ColorPanel = new ColorPanel()
@@ -27,9 +27,9 @@ class InlineErrorComponent {
   val listenerSelector: JComboBox[String] = new ComboBox[String](InlineError.COLLECTORS)
   val listenerHelp: String =
     """<html>
-      |<strong>Problems</strong>: More features but not all languages support; <em>Recommended</em>
+      |<strong>HighlightInfo</strong>: Allows to collect INFO, WARNING along with ERROR messages; <em>Recommended</em>
+      |<br><strong>Problems</strong>: More features but not all languages support
       |<br><strong>PsiError</strong>: Faster but missing type checkers and linters
-      |<br><strong>HighlightInfo</strong>: Allows to collect INFO, WARNING along with ERROR messages; <em>In Development</em>
       |</html>""".stripMargin
 
   highlightError.setSelectedColor(null)

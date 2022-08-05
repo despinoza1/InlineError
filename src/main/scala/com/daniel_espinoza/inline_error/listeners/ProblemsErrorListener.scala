@@ -63,8 +63,7 @@ class ProblemsErrorListener extends ProblemsListener {
       })
       logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
 
-//      InlineError.highlightErrorSeq(errors, project)
-      InlineError.makeHighlightersInline(project)
+      InlineError.highlightErrorSeq(errors, project)
     })
   }
 }

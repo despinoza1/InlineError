@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
         storages = {@Storage("InlineErrorPluginSettings.xml")}
 )
 public class InlineErrorState implements PersistentStateComponent<InlineErrorState> {
-    public boolean isEnabled = true;
     public String highlightSeverity = "None";
     public int highlightErrorColor = 4862772;
     public int errorTextColor = 16737637;
@@ -24,7 +23,7 @@ public class InlineErrorState implements PersistentStateComponent<InlineErrorSta
 
     public int highlightInfoColor = 225162;
     public int infoTextColor = 47076;
-    public String collector = InlineError.PROBLEMS();
+    public String collector = InlineError.HIGHLIGHT();
 
     public String severity = "WARN";
 

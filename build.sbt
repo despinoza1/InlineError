@@ -4,7 +4,7 @@ lazy val inlineError =
   project.in(file("."))
     .enablePlugins(SbtIdeaPlugin)
     .settings(
-      version := "0.3.0",
+      version := "0.4.0",
       scalaVersion := "2.13.8",
       ThisBuild / intellijPluginName := "InlineError",
       ThisBuild / intellijBuild      := "213.6461.79",

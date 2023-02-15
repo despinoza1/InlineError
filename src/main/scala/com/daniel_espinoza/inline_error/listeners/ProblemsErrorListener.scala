@@ -4,13 +4,10 @@ import com.daniel_espinoza.inline_error.InlineError
 import com.daniel_espinoza.inline_error.settings.InlineErrorState
 import com.intellij.analysis.problemsView.toolWindow.HighlightingProblem
 import com.intellij.analysis.problemsView.{Problem, ProblemsListener}
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-
-import java.util.concurrent
 
 class ProblemsErrorListener extends ProblemsListener {
 
@@ -23,7 +20,6 @@ class ProblemsErrorListener extends ProblemsListener {
     val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
     val file = highlightingProblem.getFile
 
-    problems.put(file, highlightingProblem :: problems.getOrDefault(file, List[HighlightingProblem]()))
     triggerHighlightEvent(file, problem.getProvider.getProject)
   }
 
@@ -34,7 +30,6 @@ class ProblemsErrorListener extends ProblemsListener {
     val highlightingProblem = problem.asInstanceOf[HighlightingProblem]
     val file = highlightingProblem.getFile
 
-    problems.replace(file, problems.getOrDefault(file, List[HighlightingProblem]()).filter(!_.equals(highlightingProblem)))
     triggerHighlightEvent(file, problem.getProvider.getProject)
   }
 
@@ -57,20 +52,13 @@ class ProblemsErrorListener extends ProblemsListener {
 
   def triggerHighlightEvent(file: VirtualFile, project: Project): Unit = {
     if (!file.isValid) return
-    val problemList = problems.getOrDefault(file, List[HighlightingProblem]())
 
     ApplicationManager.getApplication.invokeLater(() => {
-      val errors = problemList.map(e => {
-        InlineError.Error(e.getText, e.getLine, HighlightSeverity.ERROR)
-      })
-      logger.debug(s"Problems sent to InlineError:\n${errors.mkString("\n")}")
-
-      InlineError.highlightErrorSeq(errors, project)
+      InlineError.makeHighlightersInline(project)
     })
   }
 }
 
 object ProblemsErrorListener {
   val logger: Logger = Logger.getInstance(classOf[ProblemsErrorListener])
-  val problems: concurrent.ConcurrentMap[VirtualFile, List[HighlightingProblem]] = new concurrent.ConcurrentHashMap[VirtualFile, List[HighlightingProblem]]()
 }

@@ -27,9 +27,9 @@ class InlineErrorComponent {
   val listenerSelector: JComboBox[String] = new ComboBox[String](InlineError.COLLECTORS)
   val listenerHelp: String =
     """<html>
-      |<strong>HighlightInfo</strong>: Allows to collect INFO, WARNING along with ERROR messages; <em>Recommended</em>
-      |<br><strong>Problems</strong>: More features but not all languages support
-      |<br><strong>PsiError</strong>: Faster but missing type checkers and linters
+      |<strong>Problems</strong>: Updated whenever Problems panel is updated
+      |<br><strong>HighlightInfo</strong>: Updated after updates to Highlight; each highlight event is sent individually
+      |<br><strong>PsiError</strong>: Updated after any change to PSI Tree
       |</html>""".stripMargin
 
   highlightError.setSelectedColor(null)

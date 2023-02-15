@@ -23,7 +23,7 @@ public class InlineErrorState implements PersistentStateComponent<InlineErrorSta
 
     public int highlightInfoColor = 225162;
     public int infoTextColor = 47076;
-    public String collector = InlineError.HIGHLIGHT();
+    public String collector = InlineError.PROBLEMS();
 
     public String severity = "WARN";
 

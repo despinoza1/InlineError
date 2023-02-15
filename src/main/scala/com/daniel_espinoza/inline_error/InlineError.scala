@@ -4,17 +4,19 @@ import com.daniel_espinoza.inline_error.settings.InlineErrorState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.icons.AllIcons
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.editor.markup.{HighlighterTargetArea, TextAttributes}
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.ui.components.JBLabel
 
 import java.awt.Color
 import javax.swing.Icon
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
 object InlineError {
@@ -25,7 +27,22 @@ object InlineError {
   val HIGHLIGHT: String = "HighlightInfo"
   val COLLECTORS: Array[String] = Array(PROBLEMS, PSIERROR, HIGHLIGHT)
 
-  def stringToHighlightSeverity(severity: String): HighlightSeverity = severity match {
+  ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
+    @tailrec
+    override def run(): Unit = {
+      val settings = InlineErrorState.getInstance().getState
+      if (settings.severity.compareTo("None") != 0) {
+        ApplicationManager.getApplication.invokeLater(() =>
+          ProjectManager.getInstance().getOpenProjects.foreach(InlineError.makeHighlightersInline)
+        )
+      }
+
+      Thread.sleep(3000)
+      run()
+    }
+  })
+
+  private def stringToHighlightSeverity(severity: String): HighlightSeverity = severity match {
     case "INFO" => HighlightSeverity.INFORMATION
     case "WEAK_WARN" => HighlightSeverity.WEAK_WARNING
     case "WARN" => HighlightSeverity.WARNING
@@ -33,7 +50,7 @@ object InlineError {
     case _ => new HighlightSeverity("NONE", Int.MaxValue)
   }
 
-  def filterSeverity(severity: HighlightSeverity): Boolean = {
+  private def filterSeverity(severity: HighlightSeverity): Boolean = {
     val settings = InlineErrorState.getInstance().getState
     severity.myVal >= stringToHighlightSeverity(settings.severity).myVal
   }
@@ -46,7 +63,7 @@ object InlineError {
     else Some(editor)
   }
 
-  def clearHighlighters(editor: Editor): Unit =
+  private def clearHighlighters(editor: Editor): Unit =
     editor.getMarkupModel.getAllHighlighters.foreach(h => {
       if (h.getGutterIconRenderer != null && h.getGutterIconRenderer.isInstanceOf[ErrorGutterRenderer])
         editor.getMarkupModel.removeHighlighter(h)
@@ -58,7 +75,7 @@ object InlineError {
           .foreach(_.dispose())
     })
 
-  def createErrorLabel(editor: Editor, settings: InlineErrorState)(error: Error): Unit = {
+  private def createErrorLabel(editor: Editor, settings: InlineErrorState)(error: Error): Unit = {
     logger.debug(s"Creating ErrorLabel for `[${error.line}]: ${error.text}`")
     val document = editor.getDocument
     val inlayModel = editor.getInlayModel
